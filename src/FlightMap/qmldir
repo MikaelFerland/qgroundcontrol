@@ -16,6 +16,7 @@ QGCInstrumentWidgetAlternate    1.0 QGCInstrumentWidgetAlternate.qml
 QGCPitchIndicator               1.0 QGCPitchIndicator.qml
 QGCSlider                       1.0 QGCSlider.qml
 ValuesWidget                    1.0 ValuesWidget.qml
+VehicleHealthWidget             1.0 VehicleHealthWidget.qml
 VibrationWidget                 1.0 VibrationWidget.qml
 
 # Map items
@@ -23,3 +24,6 @@ MissionItemIndicator    1.0 MissionItemIndicator.qml
 MissionItemView         1.0 MissionItemView.qml
 MissionLineView         1.0 MissionLineView.qml
 VehicleMapItem          1.0 VehicleMapItem.qml
+
+# Editor controls
+QGCMapPolygonControls  1.0 QGCMapPolygonControls.qml

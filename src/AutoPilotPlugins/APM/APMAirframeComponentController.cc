@@ -15,9 +15,9 @@
 #include "APMAirframeComponentAirframes.h"
 #include "QGCMAVLink.h"
 #include "MultiVehicleManager.h"
-#include "AutoPilotPluginManager.h"
 #include "QGCApplication.h"
 #include "QGCFileDownload.h"
+#include "ParameterManager.h"
 
 #include <QVariant>
 #include <QQmlProperty>
@@ -107,7 +107,7 @@ void APMAirframeComponentController::_loadParametersFromDownloadFile(const QStri
         }
     }
     qgcApp()->restoreOverrideCursor();
-    _autopilot->refreshAllParameters();
+    _vehicle->parameterManager()->refreshAllParameters();
 }
 
 APMAirframeType::APMAirframeType(const QString& name, const QString& imageResource, int type, QObject* parent) :

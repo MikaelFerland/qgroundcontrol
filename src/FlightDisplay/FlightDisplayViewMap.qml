@@ -27,7 +27,7 @@ FlightMap {
     anchors.fill:   parent
     mapName:        _mapName
 
-    property alias  missionController: _missionController
+    property alias  missionController: missionController
     property var    flightWidgets
 
     property bool   _followVehicle:                 true
@@ -54,7 +54,17 @@ FlightMap {
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
     MissionController {
-        id: _missionController
+        id: missionController
+        Component.onCompleted: start(false /* editMode */)
+    }
+
+    GeoFenceController {
+        id: geoFenceController
+        Component.onCompleted: start(false /* editMode */)
+    }
+
+    RallyPointController {
+        id: rallyPointController
         Component.onCompleted: start(false /* editMode */)
     }
 
@@ -82,18 +92,62 @@ FlightMap {
             coordinate:     object.coordinate
             isSatellite:    flightMap.isSatelliteMap
             size:           _mainIsMap ? ScreenTools.defaultFontPixelHeight * 5 : ScreenTools.defaultFontPixelHeight * 2
-            z:              QGroundControl.zOrderMapItems
+            z:              QGroundControl.zOrderMapItems - 1
         }
     }
 
     // Add the mission items to the map
     MissionItemView {
-        model: _mainIsMap ? _missionController.visualItems : 0
+        model: _mainIsMap ? missionController.visualItems : 0
     }
 
     // Add lines between waypoints
     MissionLineView {
-        model: _mainIsMap ? _missionController.waypointLines : 0
+        model: _mainIsMap ? missionController.waypointLines : 0
+    }
+
+    // GeoFence polygon
+    MapPolygon {
+        border.color:   "#80FF0000"
+        border.width:   3
+        path:           geoFenceController.polygon.path
+        visible:        geoFenceController.polygonEnabled
+    }
+
+    // GeoFence circle
+    MapCircle {
+        border.color:   "#80FF0000"
+        border.width:   3
+        center:         missionController.plannedHomePosition
+        radius:         geoFenceController.circleRadius
+        z:              QGroundControl.zOrderMapItems
+        visible:        geoFenceController.circleEnabled
+    }
+
+    // GeoFence breach return point
+    MapQuickItem {
+        anchorPoint:    Qt.point(sourceItem.width / 2, sourceItem.height / 2)
+        coordinate:     geoFenceController.breachReturnPoint
+        visible:        geoFenceController.breachReturnEnabled
+        sourceItem:     MissionItemIndexLabel { label: "F" }
+        z:              QGroundControl.zOrderMapItems
+    }
+
+    // Rally points on map
+    MapItemView {
+        model: rallyPointController.points
+
+        delegate: MapQuickItem {
+            id:             itemIndicator
+            anchorPoint:    Qt.point(sourceItem.width / 2, sourceItem.height / 2)
+            coordinate:     object.coordinate
+            z:              QGroundControl.zOrderMapItems
+
+            sourceItem: MissionItemIndexLabel {
+                id:         itemIndexLabel
+                label:      qsTr("R", "rally point map item label")
+            }
+        }
     }
 
     // GoTo here waypoint
@@ -105,8 +159,8 @@ FlightMap {
         anchorPoint.y:  sourceItem.height / 2
 
         sourceItem: MissionItemIndexLabel {
-            isCurrentItem:  true
-            label:          qsTr("G", "Goto here waypoint") // second string is translator's hint.
+            checked: true
+            label:   qsTr("G", "Goto here waypoint") // second string is translator's hint.
         }
     }    
 
@@ -115,7 +169,6 @@ FlightMap {
         anchors.rightMargin:    ScreenTools.defaultFontPixelHeight * (0.33)
         anchors.bottom:         parent.bottom
         anchors.right:          parent.right
-        z:                      QGroundControl.zOrderWidgets
         mapControl:             flightMap
         visible:                !ScreenTools.isTinyScreen
     }
